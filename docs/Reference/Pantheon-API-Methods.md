@@ -2738,7 +2738,61 @@ Lists [signers for the specified block](../Consensus-Protocols/Clique.md#adding-
       "result" : [ "0x42eb768f2244c8811c63729a21a3569731535f06", "0x7ffc57839b00206d1ad20c69a1981b489f772031", "0xb279182d99e65703f0076e4812653aab85fca0f0" ]
     }
     ```
+
+### clique_getSignerMetrics
+
+Report validator block production information :
+
+- The number of blocks from each proposer in a given block range.
+- The block number of the last block proposed by each validator (if any within the given range).
+- All validators present in the last block of the range even if they didn’t propose a block.
+
+**Parameters**
+
+`fromBlockNumber` - Integer representing a block number or the string tag `earliest` as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). 
+
+`toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). (optional and default to `latest`)
+
+If no parameters are specified, only the last 100 blocks will be processed.
+
+**Returns**
+
+`result`:_object_ - List of validators with their metrics. 
+
+!!! example
+    ```bash tab="curl HTTP"
+    curl -X POST --data '{"jsonrpc":"2.0","method":"clique_getSignerMetrics","params":["1", "100"], "id":1}' http://127.0.0.1:8545
+    ```
     
+    ```bash tab="wscat WS"
+    {"jsonrpc":"2.0","method":"clique_getSignerMetrics","params":["1", "100"], "id":1}
+    ```
+    
+    ```json tab="JSON result"
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": [
+            {
+                "address": "0x7ffc57839b00206d1ad20c69a1981b489f772031",
+                "proposedBlockCount": "0x21",
+                "lastProposedBlockNumber": "0x61"
+            },
+            {
+                "address": "0x42eb768f2244c8811c63729a21a3569731535f06",
+                "proposedBlockCount": "0x21",
+                "lastProposedBlockNumber": "0x63"
+            },
+            {
+                "address": "0xb279182d99e65703f0076e4812653aab85fca0f0",
+                "proposedBlockCount": "0x21",
+                "lastProposedBlockNumber": "0x62"
+            }
+        ]
+    }
+    ```
+ 
+   
 ### clique_getSignersAtHash
 
 Lists signers for the specified block.
@@ -3450,6 +3504,60 @@ Proposes [adding or removing a validator](../Consensus-Protocols/IBFT.md#adding-
      "result" : true
     }
     ```
+
+### ibft_getSignerMetrics
+
+Report validator block production information :
+
+- The number of blocks from each proposer in a given block range.
+- The block number of the last block proposed by each validator (if any within the given range).
+- All validators present in the last block of the range even if they didn’t propose a block.
+
+**Parameters**
+
+`fromBlockNumber` - Integer representing a block number or the string tag `earliest` as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). 
+
+`toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). (optional and default to `latest`)
+
+If no parameters are specified, only the last 100 blocks will be processed.
+
+**Returns**
+
+`result`:_object_ - List of validators with their metrics. 
+
+!!! example
+    ```bash tab="curl HTTP"
+    curl -X POST --data '{"jsonrpc":"2.0","method":"ibft_getSignerMetrics","params":["1", "100"], "id":1}' http://127.0.0.1:8545
+    ```
+    
+    ```bash tab="wscat WS"
+    {"jsonrpc":"2.0","method":"ibft_getSignerMetrics","params":["1", "100"], "id":1}
+    ```
+    
+    ```json tab="JSON result"
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": [
+            {
+                "address": "0x7ffc57839b00206d1ad20c69a1981b489f772031",
+                "proposedBlockCount": "0x21",
+                "lastProposedBlockNumber": "0x61"
+            },
+            {
+                "address": "0x42eb768f2244c8811c63729a21a3569731535f06",
+                "proposedBlockCount": "0x21",
+                "lastProposedBlockNumber": "0x63"
+            },
+            {
+                "address": "0xb279182d99e65703f0076e4812653aab85fca0f0",
+                "proposedBlockCount": "0x21",
+                "lastProposedBlockNumber": "0x62"
+            }
+        ]
+    }
+    ```
+ 
 
 ## Permissioning Methods
 
