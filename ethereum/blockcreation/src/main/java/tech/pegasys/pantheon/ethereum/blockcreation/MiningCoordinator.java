@@ -47,6 +47,11 @@ public interface MiningCoordinator {
         "Current consensus mechanism prevents querying of hashrate.");
   }
 
+  default boolean submitHashesPerSecond(final String remoteMinerId, final long hashrate) {
+    throw new UnsupportedOperationException(
+        "Current consensus mechanism prevents submitting hashrate.");
+  }
+
   default Optional<EthHashSolverInputs> getWorkDefinition() {
     throw new UnsupportedOperationException(
         "Current consensus mechanism prevents querying work definition.");
