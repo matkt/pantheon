@@ -2753,7 +2753,9 @@ Report validator block production information :
 
 `toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). (optional and default to `latest`)
 
-If no parameters are specified, only the last 100 blocks will be processed.
+If no parameters are specified, only the last 100 blocks will be processed. If there are less than 100 blocks available in the network the method will process all the blocks present.
+
+If only the first parameter `fromBlockNumber` is specified the method will process all blocks from `fromBlockNumber` to the `latest` available.
 
 **Returns**
 
@@ -3519,7 +3521,9 @@ Report validator block production information :
 
 `toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). (optional and default to `latest`)
 
-If no parameters are specified, only the last 100 blocks will be processed.
+If no parameters are specified, only the last 100 blocks will be processed. If there are less than 100 blocks available in the network the method will process all the blocks present.
+
+If only the first parameter `fromBlockNumber` is specified the method will process all blocks from `fromBlockNumber` to the `latest` available.
 
 **Returns**
 
