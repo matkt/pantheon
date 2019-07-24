@@ -1344,6 +1344,28 @@ public class PantheonCommandTest extends CommandTestAbstract {
   }
 
   @Test
+  public void parsesValidFastSyncTaskCacheSizeOption() {
+    parseCommand("--sync-mode", "FAST", "--fast-sync-task-cache-size", "10000");
+    verify(mockControllerBuilder).synchronizerConfiguration(syncConfigurationCaptor.capture());
+
+    final SynchronizerConfiguration syncConfig = syncConfigurationCaptor.getValue();
+    assertThat(syncConfig.getSyncMode()).isEqualTo(SyncMode.FAST);
+    assertThat(syncConfig.getTaskCollectionCacheSize()).isEqualTo(10000);
+    assertThat(commandOutput.toString()).isEmpty();
+    assertThat(commandErrorOutput.toString()).isEmpty();
+  }
+
+  @Test
+  public void parsesInvalidFastSyncTaskCacheSizeOptionWrongFormatShouldFail() {
+
+    parseCommand("--sync-mode", "FAST", "--fast-sync-task-cache-size", "ten");
+    verifyZeroInteractions(mockRunnerBuilder);
+    assertThat(commandOutput.toString()).isEmpty();
+    assertThat(commandErrorOutput.toString())
+        .contains("Invalid value for option '--fast-sync-task-cache-size': 'ten' is not an int");
+  }
+
+  @Test
   public void natMethodOptionIsParsedCorrectly() {
 
     parseCommand("--nat-method", "NONE");

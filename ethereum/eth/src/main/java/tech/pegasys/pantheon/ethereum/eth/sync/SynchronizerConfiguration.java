@@ -41,6 +41,7 @@ public class SynchronizerConfiguration {
   public static final int DEFAULT_DOWNLOADER_PARALLELISM = 4;
   public static final int DEFAULT_TRANSACTIONS_PARALLELISM = 2;
   public static final int DEFAULT_COMPUTATION_PARALLELISM = 2;
+  private static final int DEFAULT_CACHE_SIZE = 1_000_000;
 
   // Fast sync config
   private final int fastSyncPivotDistance;
@@ -49,6 +50,7 @@ public class SynchronizerConfiguration {
   private final int worldStateHashCountPerRequest;
   private final int worldStateRequestParallelism;
   private final int worldStateMaxRequestsWithoutProgress;
+  private final int taskCollectionCacheSize;
 
   // Block propagation config
   private final Range<Long> blockPropagationRange;
@@ -76,6 +78,7 @@ public class SynchronizerConfiguration {
       final int worldStateRequestParallelism,
       final int worldStateMaxRequestsWithoutProgress,
       final long worldStateMinMillisBeforeStalling,
+      final int taskCollectionCacheSize,
       final Range<Long> blockPropagationRange,
       final SyncMode syncMode,
       final long downloaderChangeTargetThresholdByHeight,
@@ -94,6 +97,7 @@ public class SynchronizerConfiguration {
     this.worldStateRequestParallelism = worldStateRequestParallelism;
     this.worldStateMaxRequestsWithoutProgress = worldStateMaxRequestsWithoutProgress;
     this.worldStateMinMillisBeforeStalling = worldStateMinMillisBeforeStalling;
+    this.taskCollectionCacheSize = taskCollectionCacheSize;
     this.blockPropagationRange = blockPropagationRange;
     this.syncMode = syncMode;
     this.downloaderChangeTargetThresholdByHeight = downloaderChangeTargetThresholdByHeight;
@@ -207,6 +211,10 @@ public class SynchronizerConfiguration {
     return maxTrailingPeers;
   }
 
+  public int getTaskCollectionCacheSize() {
+    return taskCollectionCacheSize;
+  }
+
   public static class Builder {
     private SyncMode syncMode = SyncMode.FULL;
     private int fastSyncMinimumPeerCount = DEFAULT_FAST_SYNC_MINIMUM_PEERS;
@@ -230,6 +238,7 @@ public class SynchronizerConfiguration {
     private int worldStateMaxRequestsWithoutProgress =
         DEFAULT_WORLD_STATE_MAX_REQUESTS_WITHOUT_PROGRESS;
     private long worldStateMinMillisBeforeStalling = DEFAULT_WORLD_STATE_MIN_MILLIS_BEFORE_STALLING;
+    private int taskCollectionCacheSize = DEFAULT_CACHE_SIZE;
 
     public Builder fastSyncPivotDistance(final int distance) {
       fastSyncPivotDistance = distance;
@@ -332,6 +341,11 @@ public class SynchronizerConfiguration {
       return this;
     }
 
+    public Builder taskCollectionCacheSize(final int taskCollectionCacheSize) {
+      this.taskCollectionCacheSize = taskCollectionCacheSize;
+      return this;
+    }
+
     public SynchronizerConfiguration build() {
       return new SynchronizerConfiguration(
           fastSyncPivotDistance,
@@ -341,6 +355,7 @@ public class SynchronizerConfiguration {
           worldStateRequestParallelism,
           worldStateMaxRequestsWithoutProgress,
           worldStateMinMillisBeforeStalling,
+          taskCollectionCacheSize,
           blockPropagationRange,
           syncMode,
           downloaderChangeTargetThresholdByHeight,
