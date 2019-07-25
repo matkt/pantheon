@@ -70,7 +70,7 @@ public class FastDownloaderFactory {
         createWorldStateDownloaderTaskCollection(
             getStateQueueDirectory(dataDirectory),
             metricsSystem,
-            syncConfig.getTaskCollectionCacheSize());
+            syncConfig.getWorldStateTaskCacheSize());
     final WorldStateDownloader worldStateDownloader =
         new WorldStateDownloader(
             ethContext,

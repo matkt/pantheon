@@ -292,13 +292,6 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
   private final Integer fastSyncMinPeerCount = FAST_SYNC_MIN_PEER_COUNT;
 
   @Option(
-      names = {"--fast-sync-task-cache-size"},
-      paramLabel = MANDATORY_INTEGER_FORMAT_HELP,
-      description =
-          "The size of the cache containing the tasks to be operated. (default: ${DEFAULT-VALUE})")
-  private final Integer taskCollectionCacheSize = DEFAULT_TASK_CACHE_SIZE;
-
-  @Option(
       names = {"--network"},
       paramLabel = MANDATORY_NETWORK_FORMAT_HELP,
       description =
@@ -1147,7 +1140,6 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
         .toDomainObject()
         .syncMode(syncMode)
         .fastSyncMinimumPeerCount(fastSyncMinPeerCount)
-        .taskCollectionCacheSize(taskCollectionCacheSize)
         .build();
   }
 
