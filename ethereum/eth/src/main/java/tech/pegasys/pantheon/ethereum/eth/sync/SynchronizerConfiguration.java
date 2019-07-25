@@ -80,7 +80,7 @@ public class SynchronizerConfiguration {
       final int worldStateRequestParallelism,
       final int worldStateMaxRequestsWithoutProgress,
       final long worldStateMinMillisBeforeStalling,
-      final int taskCollectionCacheSize,
+      final int worldStateTaskCacheSize,
       final Range<Long> blockPropagationRange,
       final SyncMode syncMode,
       final long downloaderChangeTargetThresholdByHeight,
@@ -99,7 +99,7 @@ public class SynchronizerConfiguration {
     this.worldStateRequestParallelism = worldStateRequestParallelism;
     this.worldStateMaxRequestsWithoutProgress = worldStateMaxRequestsWithoutProgress;
     this.worldStateMinMillisBeforeStalling = worldStateMinMillisBeforeStalling;
-    this.worldStateTaskCacheSize = taskCollectionCacheSize;
+    this.worldStateTaskCacheSize = worldStateTaskCacheSize;
     this.blockPropagationRange = blockPropagationRange;
     this.syncMode = syncMode;
     this.downloaderChangeTargetThresholdByHeight = downloaderChangeTargetThresholdByHeight;
