@@ -118,12 +118,14 @@ public class FastDownloaderFactory {
   }
 
   private static CachingTaskCollection<NodeDataRequest> createWorldStateDownloaderTaskCollection(
-      final Path dataDirectory, final MetricsSystem metricsSystem, final int cachingTaskCacheSize) {
+      final Path dataDirectory,
+      final MetricsSystem metricsSystem,
+      final int worldStateTaskCacheSize) {
     final CachingTaskCollection<NodeDataRequest> taskCollection =
         new CachingTaskCollection<>(
             new FlatFileTaskCollection<>(
                 dataDirectory, NodeDataRequest::serialize, NodeDataRequest::deserialize),
-            cachingTaskCacheSize);
+            worldStateTaskCacheSize);
 
     metricsSystem.createLongGauge(
         PantheonMetricCategory.SYNCHRONIZER,
