@@ -204,7 +204,7 @@ public class SynchronizerOptions implements CLIOptions<SynchronizerConfiguration
       defaultValue = "1000000",
       paramLabel = "<INTEGER>",
       description =
-          "The size of the cache containing the tasks to be operated. (default: ${DEFAULT-VALUE})")
+          "The max number of pending node data requests cached in-memory during fast sync world state download. (default: ${DEFAULT-VALUE})")
   private int worldStateTaskCacheSize =
       SynchronizerConfiguration.DEFAULT_WORLD_STATE_TASK_CACHE_SIZE;
 
