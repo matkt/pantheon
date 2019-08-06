@@ -2794,6 +2794,9 @@ If only the first parameter `fromBlockNumber` is specified the method will proce
     }
     ```
  
+!!! note
+    The genesis block's proposer is reported as `0x0000000000000000000000000000000000000000`.
+
    
 ### clique_getSignersAtHash
 
@@ -3563,6 +3566,9 @@ If only the first parameter `fromBlockNumber` is specified the method will proce
     }
     ```
  
+!!! note
+    The genesis block's proposer is reported as `0x0000000000000000000000000000000000000000`.
+
 
 ## Permissioning Methods
 
