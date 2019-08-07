@@ -2741,29 +2741,29 @@ Lists [signers for the specified block](../Consensus-Protocols/Clique.md#adding-
 
 ### clique_getSignerMetrics
 
-Returns validator metrics for all validators present in the last block of the range.
+Provides validator metrics for the specified range:
+
+- Number of blocks from each validator
+- Block number of the last block proposed by each validator (if any proposed in the specified range)
+- All validators present in the last block 
 
 **Parameters**
 
-`fromBlockNumber` - Integer representing a block number or the string tag `earliest`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). 
+`fromBlockNumber` - Integer representing a block number or the string tag `earliest` as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter) 
 
-`toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). (optional and default to `latest`)
+`toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter)
 
-If no parameters are specified, only the last 100 blocks will be processed. If there are less than 100 blocks available in the network the method will process all the blocks present.
+If no parameters are specified, metrics are provided for the last 100 blocks or all blocks if there are less than 100 blocks.
 
-If only the first parameter `fromBlockNumber` is specified the method will process all blocks from `fromBlockNumber` to the `latest` available.
+If only the first parameter is specified, metrics are provided for all blocks from the block specified by the first 
+parameter to the latest block.
 
 **Returns**
 
-`result`: Validator metrics object
+`result`: _object_ - List of validator objects 
 
-Properties of the validator metrics object are: 
-
-* `address` - Validator address 
-* `proposedBlockCount` - Number of blocks proposed by the validator 
-* `lastProposedBlockNumber` - Block number of last proposed block 
- 
-Number of blocks from each proposer in a given block range
+!!! note
+    The proposer of the genesis block has address `0x0000000000000000000000000000000000000000`.
 
 !!! example
     ```bash tab="curl HTTP"
@@ -2797,11 +2797,7 @@ Number of blocks from each proposer in a given block range
         ]
     }
     ```
- 
-!!! note
-    The genesis block's proposer is reported as `0x0000000000000000000000000000000000000000`.
-
-   
+    
 ### clique_getSignersAtHash
 
 Lists signers for the specified block.
@@ -3517,9 +3513,9 @@ Proposes [adding or removing a validator](../Consensus-Protocols/IBFT.md#adding-
 
 ### ibft_getSignerMetrics
 
-Provides validator block production metrics for the specified range:
+Provides validator metrics for the specified range:
 
-- Number of blocks from each proposer
+- Number of blocks from each validator
 - Block number of the last block proposed by each validator (if any proposed in the specified range)
 - All validators present in the last block of the range 
 
@@ -3532,11 +3528,14 @@ Provides validator block production metrics for the specified range:
 If no parameters are specified, metrics are provided for the last 100 blocks or all blocks if there are less than 100 blocks.
 
 If only the first parameter is specified, metrics are provided for all blocks from the block specified by the first 
-parameter to the `latest` block.
+parameter to the latest block.
 
 **Returns**
 
-`result`: _object_ - List of validators with their metrics. 
+`result`: _object_ - List of validator objects 
+
+!!! note
+    The proposer of the genesis block has address `0x0000000000000000000000000000000000000000`.
 
 !!! example
     ```bash tab="curl HTTP"
@@ -3570,9 +3569,6 @@ parameter to the `latest` block.
         ]
     }
     ```
- 
-!!! note
-    The genesis block's proposer is reported as `0x0000000000000000000000000000000000000000`.
 
 
 ## Permissioning Methods
