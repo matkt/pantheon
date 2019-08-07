@@ -3514,25 +3514,26 @@ Proposes [adding or removing a validator](../Consensus-Protocols/IBFT.md#adding-
 
 ### ibft_getSignerMetrics
 
-Report validator block production information :
+Provides validator block production metrics for the specified range:
 
-- The number of blocks from each proposer in a given block range.
-- The block number of the last block proposed by each validator (if any within the given range).
-- All validators present in the last block of the range even if they didn’t propose a block.
+- Number of blocks from each proposer
+- Block number of the last block proposed by each validator (if any proposed in the specified range)
+- All validators present in the last block of the range 
 
 **Parameters**
 
-`fromBlockNumber` - Integer representing a block number or the string tag `earliest` as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). 
+`fromBlockNumber` - Integer representing a block number or the string tag `earliest` as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter) 
 
-`toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter). (optional and default to `latest`)
+`toBlockNumber` - Integer representing a block number or one of the string tags `latest` or `pending`, as described in [Block Parameter](../Pantheon-API/Using-JSON-RPC-API.md#block-parameter)
 
-If no parameters are specified, only the last 100 blocks will be processed. If there are less than 100 blocks available in the network the method will process all the blocks present.
+If no parameters are specified, metrics are provided for the last 100 blocks or all blocks if there are less than 100 blocks.
 
-If only the first parameter `fromBlockNumber` is specified the method will process all blocks from `fromBlockNumber` to the `latest` available.
+If only the first parameter is specified, metrics are provided for all blocks from the block specified by the first 
+parameter to the `latest` block.
 
 **Returns**
 
-`result`:_object_ - List of validators with their metrics. 
+`result`: _object_ - List of validators with their metrics. 
 
 !!! example
     ```bash tab="curl HTTP"
