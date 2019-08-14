@@ -41,6 +41,7 @@ import tech.pegasys.pantheon.cli.custom.JsonRPCWhitelistHostsProperty;
 import tech.pegasys.pantheon.cli.custom.RpcAuthFileValidator;
 import tech.pegasys.pantheon.cli.error.PantheonExceptionHandler;
 import tech.pegasys.pantheon.cli.options.EthProtocolOptions;
+import tech.pegasys.pantheon.cli.options.MetricsCLIOptions;
 import tech.pegasys.pantheon.cli.options.NetworkingOptions;
 import tech.pegasys.pantheon.cli.options.RocksDBOptions;
 import tech.pegasys.pantheon.cli.options.SynchronizerOptions;
@@ -50,6 +51,7 @@ import tech.pegasys.pantheon.cli.subcommands.PublicKeySubCommand;
 import tech.pegasys.pantheon.cli.subcommands.PublicKeySubCommand.KeyLoader;
 import tech.pegasys.pantheon.cli.subcommands.RetestethSubCommand;
 import tech.pegasys.pantheon.cli.subcommands.blocks.BlocksSubCommand;
+import tech.pegasys.pantheon.cli.subcommands.blocks.BlocksSubCommand.ChainImporterFactory;
 import tech.pegasys.pantheon.cli.subcommands.operator.OperatorSubCommand;
 import tech.pegasys.pantheon.cli.subcommands.rlp.RLPSubCommand;
 import tech.pegasys.pantheon.cli.util.ConfigOptionSearchAndRunHandler;
@@ -57,6 +59,7 @@ import tech.pegasys.pantheon.cli.util.VersionProvider;
 import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.controller.KeyPairUtil;
 import tech.pegasys.pantheon.controller.PantheonController;
+import tech.pegasys.pantheon.controller.PantheonControllerBuilder;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.MiningParameters;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
@@ -92,7 +95,6 @@ import tech.pegasys.pantheon.services.PicoCLIOptionsImpl;
 import tech.pegasys.pantheon.services.kvstore.RocksDbConfiguration;
 import tech.pegasys.pantheon.util.BlockExporter;
 import tech.pegasys.pantheon.util.BlockImporter;
-import tech.pegasys.pantheon.util.InvalidConfigurationException;
 import tech.pegasys.pantheon.util.PermissioningConfigurationValidator;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.number.Fraction;
@@ -151,6 +153,7 @@ import picocli.CommandLine.ParameterException;
 public class PantheonCommand implements DefaultCommandValues, Runnable {
 
   private final Logger logger;
+  private final ChainImporterFactory chainImporterFactory;
 
   private CommandLine commandLine;
 
@@ -160,6 +163,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
   final NetworkingOptions networkingOptions = NetworkingOptions.create();
   final SynchronizerOptions synchronizerOptions = SynchronizerOptions.create();
   final EthProtocolOptions ethProtocolOptions = EthProtocolOptions.create();
+  final MetricsCLIOptions metricsCLIOptions = MetricsCLIOptions.create();
   final RocksDBOptions rocksDBOptions = RocksDBOptions.create();
   final TransactionPoolOptions transactionPoolOptions = TransactionPoolOptions.create();
   private final RunnerBuilder runnerBuilder;
@@ -631,6 +635,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
       final Logger logger,
       final BlockImporter blockImporter,
       final BlockExporter blockExporter,
+      final ChainImporterFactory chainImporterFactory,
       final RunnerBuilder runnerBuilder,
       final PantheonController.Builder controllerBuilderFactory,
       final PantheonPluginContextImpl pantheonPluginContext,
@@ -638,6 +643,7 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
     this.logger = logger;
     this.blockImporter = blockImporter;
     this.blockExporter = blockExporter;
+    this.chainImporterFactory = chainImporterFactory;
     this.runnerBuilder = runnerBuilder;
     this.controllerBuilderFactory = controllerBuilderFactory;
     this.pantheonPluginContext = pantheonPluginContext;
@@ -683,7 +689,8 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
       final AbstractParseResultHandler<List<Object>> resultHandler, final InputStream in) {
     commandLine.addSubcommand(
         BlocksSubCommand.COMMAND_NAME,
-        new BlocksSubCommand(blockImporter, blockExporter, resultHandler.out()));
+        new BlocksSubCommand(
+            blockImporter, blockExporter, chainImporterFactory, resultHandler.out()));
     commandLine.addSubcommand(
         PublicKeySubCommand.COMMAND_NAME,
         new PublicKeySubCommand(resultHandler.out(), getKeyLoader()));
@@ -715,19 +722,18 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
 
   private PantheonCommand handleUnstableOptions() {
     // Add unstable options
-    UnstableOptionsSubCommand.createUnstableOptions(
-        commandLine,
-        ImmutableMap.of(
-            "P2P Network",
-            networkingOptions,
-            "Synchronizer",
-            synchronizerOptions,
-            "RocksDB",
-            rocksDBOptions,
-            "Ethereum Wire Protocol",
-            ethProtocolOptions,
-            "TransactionPool",
-            transactionPoolOptions));
+    final ImmutableMap.Builder<String, Object> unstableOptionsBuild = ImmutableMap.builder();
+    final ImmutableMap<String, Object> unstableOptions =
+        unstableOptionsBuild
+            .put("Ethereum Wire Protocol", ethProtocolOptions)
+            .put("Metrics", metricsCLIOptions)
+            .put("P2P Network", networkingOptions)
+            .put("RocksDB", rocksDBOptions)
+            .put("Synchronizer", synchronizerOptions)
+            .put("TransactionPool", transactionPoolOptions)
+            .build();
+
+    UnstableOptionsSubCommand.createUnstableOptions(commandLine, unstableOptions);
     return this;
   }
 
@@ -873,6 +879,16 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
 
   public PantheonController<?> buildController() {
     try {
+      return getControllerBuilder().build();
+    } catch (final IOException e) {
+      throw new ExecutionException(this.commandLine, "Invalid path", e);
+    } catch (final Exception e) {
+      throw new ExecutionException(this.commandLine, e.getMessage(), e);
+    }
+  }
+
+  public PantheonControllerBuilder<?> getControllerBuilder() {
+    try {
       return controllerBuilderFactory
           .fromEthNetworkConfig(updateNetworkConfig(getNetwork()))
           .synchronizerConfiguration(buildSyncConfig())
@@ -886,11 +902,8 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
           .metricsSystem(metricsSystem.get())
           .privacyParameters(privacyParameters())
           .clock(Clock.systemUTC())
-          .isRevertReasonEnabled(isRevertReasonEnabled)
-          .build();
-    } catch (final InvalidConfigurationException e) {
-      throw new ExecutionException(this.commandLine, e.getMessage());
-    } catch (final IOException e) {
+          .isRevertReasonEnabled(isRevertReasonEnabled);
+    } catch (IOException e) {
       throw new ExecutionException(this.commandLine, "Invalid path", e);
     }
   }
@@ -1006,7 +1019,8 @@ public class PantheonCommand implements DefaultCommandValues, Runnable {
             "--metrics-push-interval",
             "--metrics-push-prometheus-job"));
 
-    return MetricsConfiguration.builder()
+    return metricsCLIOptions
+        .toDomainObject()
         .enabled(isMetricsEnabled)
         .host(metricsHost)
         .port(metricsPort)
